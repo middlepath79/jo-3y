@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>jo-3y — Full Stack Architect & PWA Specialist</title>
+    <meta name="theme-color" content="#05050a">
+    <link rel="manifest" href="data:application/manifest+json,{}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.128.0/build/three.module.js"
+            }
+        }
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #05050a;
+            color: #ededed;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.4;
+            overflow-x: hidden;
+            cursor: none;
+        }
+
+        .cursor {
+            width: 8px;
+            height: 8px;
+            background: rgba(110, 168, 255, 0.9);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+        }
+        .cursor-follower {
+            width: 48px;
+            height: 48px;
+            border: 1.5px solid rgba(110, 168, 255, 0.5);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #6ea8ff; border-radius: 4px; }
+
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #03030a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10001;
+            backdrop-filter: blur(12px);
+        }
+        .loader-content { text-align: center; }
+        .loader-text {
+            font-size: 0.85rem;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            font-weight: 300;
+            background: linear-gradient(120deg, #6ea8ff, #3a6ea5);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .loader-bar {
+            width: 160px;
+            height: 2px;
+            background: #222;
+            margin-top: 20px;
+            position: relative;
+            overflow: hidden;
+            border-radius: 2px;
+        }
+        .loader-progress {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #6ea8ff, #3a6ea5);
+            animation: loadProgress 1.5s ease forwards;
+        }
+        @keyframes loadProgress {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+
+        .navbar {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 85%;
+            max-width: 1300px;
+            padding: 0.7rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(8,8,15,0.75);
+            backdrop-filter: blur(20px);
+            border-radius: 80px;
+            border: 1px solid rgba(110,168,255,0.2);
+            transition: all 0.3s;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', monospace;
+            position: relative;
+            cursor: pointer;
+        }
+        .logo-text {
+            position: relative;
+            display: inline-block;
+            background: linear-gradient(135deg, #6ea8ff, #a06eff, #6ea8ff);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            animation: logoShimmer 3s linear infinite;
+        }
+        @keyframes logoShimmer {
+            0% { background-position: 0% center; }
+            100% { background-position: 200% center; }
+        }
+        .logo-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: #6ea8ff;
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: pulseDot 1.4s ease-in-out infinite;
+        }
+        @keyframes pulseDot {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.5); opacity: 1; }
+        }
+        .logo-bracket {
+            display: inline-block;
+            animation: bounceBracket 2s ease-in-out infinite;
+        }
+        @keyframes bounceBracket {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-2px); }
+        }
+
+        .hamburger {
+            display: none;
+            cursor: pointer;
+            width: 30px;
+            height: 20px;
+            position: relative;
+            z-index: 1002;
+        }
+        .hamburger span {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #fff;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+        .hamburger span:nth-child(1) { top: 0; }
+        .hamburger span:nth-child(2) { top: 9px; }
+        .hamburger span:nth-child(3) { top: 18px; }
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg);
+            top: 9px;
+        }
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg);
+            top: 9px;
+        }
+
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5,5,10,0.98);
+            backdrop-filter: blur(40px);
+            z-index: 999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+        .menu-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .menu-links {
+            text-align: center;
+        }
+        .menu-links a {
+            display: block;
+            font-size: 3rem;
+            font-weight: 600;
+            color: #fff;
+            text-decoration: none;
+            margin: 1.5rem 0;
+            font-family: 'Space Grotesk', monospace;
+            transition: all 0.3s;
+            letter-spacing: -0.02em;
+        }
+        .menu-links a:hover {
+            color: #6ea8ff;
+            transform: scale(1.05);
+            letter-spacing: 2px;
+        }
+        .menu-social {
+            margin-top: 3rem;
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+        }
+        .menu-social a {
+            font-size: 1.8rem;
+            color: #888;
+            transition: all 0.3s;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(110,168,255,0.05);
+            border: 1px solid rgba(110,168,255,0.2);
+        }
+        .menu-social a:hover { 
+            color: #6ea8ff; 
+            transform: translateY(-5px);
+            border-color: #6ea8ff;
+            background: rgba(110,168,255,0.15);
+        }
+
+        .nav-links { display: flex; gap: 3rem; }
+        .nav-links a {
+            color: #e0e0e0;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+            transition: all 0.2s;
+        }
+        .nav-links a:hover { color: #6ea8ff; letter-spacing: 1.5px; }
+
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            background: radial-gradient(circle at center, rgba(5,5,10,0.3) 0%, rgba(5,5,10,0.85) 100%);
+        }
+        .hero-badge {
+            font-size: 0.7rem;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #6ea8ff;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(110,168,255,0.3);
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+        }
+        .hero-message {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .hero-line {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.2;
+            font-family: 'Space Grotesk', monospace;
+            margin: 0.2rem 0;
+        }
+        .hero-line-1 {
+            background: linear-gradient(135deg, #ffffff, #c0c0c0);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .rotating-title-container {
+            display: inline-block;
+            position: relative;
+            min-width: 280px;
+        }
+        .rotating-title {
+            display: inline-block;
+            background: linear-gradient(135deg, #6ea8ff, #a06eff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-size: 4.5rem;
+            font-weight: 800;
+            font-family: 'Space Grotesk', monospace;
+            white-space: nowrap;
+        }
+        .hero-line-3 {
+            font-size: 2.2rem;
+            font-weight: 500;
+            color: #aaa;
+            margin-top: 1rem;
+        }
+        .hero-sub-message {
+            font-size: 1rem;
+            color: #6ea8ff;
+            margin-top: 1rem;
+            letter-spacing: 2px;
+            font-weight: 500;
+        }
+        .tech-logos {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 2.5rem 0 1.5rem;
+        }
+        .tech-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(110,168,255,0.08);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #6ea8ff;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            border: 1px solid rgba(110,168,255,0.2);
+            backdrop-filter: blur(4px);
+        }
+        .tech-logo:hover {
+            transform: translateY(-8px) scale(1.05);
+            border-color: #6ea8ff;
+            background: rgba(110,168,255,0.2);
+            box-shadow: 0 10px 25px rgba(110,168,255,0.2);
+        }
+        .hero-description {
+            max-width: 580px;
+            margin: 1rem auto 0;
+            font-size: 1rem;
+            color: #aaa;
+            line-height: 1.6;
+        }
+
+        section {
+            padding: 6rem 8%;
+            position: relative;
+            z-index: 2;
+            background: rgba(5,5,10,0.7);
+            backdrop-filter: blur(8px);
+        }
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 2rem;
+            font-family: 'Space Grotesk', monospace;
+        }
+        .section-title .accent {
+            background: linear-gradient(135deg, #6ea8ff, #a06eff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Tech Arsenal - Logo Grid */
+        .tech-arsenal {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .tech-category {
+            background: rgba(15,15,25,0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(110,168,255,0.15);
+            border-radius: 28px;
+            padding: 1.8rem;
+            transition: all 0.3s ease;
+        }
+        .tech-category:hover {
+            border-color: rgba(110,168,255,0.3);
+            transform: translateY(-4px);
+        }
+        .category-header {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 1px solid rgba(110,168,255,0.2);
+        }
+        .category-header i {
+            font-size: 1.5rem;
+            color: #6ea8ff;
+        }
+        .category-header h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #fff;
+            letter-spacing: -0.3px;
+        }
+        .tech-logo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            align-items: center;
+        }
+        .tech-logo-item {
+            width: 70px;
+            height: 70px;
+            background: rgba(110,168,255,0.05);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.4rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(110,168,255,0.1);
+            cursor: default;
+        }
+        .tech-logo-item:hover {
+            transform: translateY(-5px);
+            border-color: #6ea8ff;
+            background: rgba(110,168,255,0.1);
+            box-shadow: 0 8px 20px rgba(110,168,255,0.15);
+        }
+        .tech-logo-item i, .tech-logo-item .custom-icon {
+            font-size: 2rem;
+            color: #6ea8ff;
+        }
+        .tech-logo-item span {
+            font-size: 0.7rem;
+            color: #aaa;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        /* Custom icons for technologies without FontAwesome brands */
+        .custom-icon {
+            font-weight: 600;
+            font-size: 1.3rem !important;
+            background: linear-gradient(135deg, #6ea8ff, #a06eff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+        .project-card {
+            background: rgba(12,12,20,0.7);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(110,168,255,0.15);
+            border-radius: 28px;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+        }
+        .project-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(110,168,255,0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .project-img {
+            height: 200px;
+            background: linear-gradient(145deg, #1a1a2a, #0c0c18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            position: relative;
+        }
+        .pwa-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(110,168,255,0.9);
+            color: #05050a;
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .project-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .project-card:hover .project-overlay { opacity: 1; }
+        .project-info { padding: 1.5rem; }
+        .project-info h3 { font-size: 1.3rem; margin-bottom: 0.5rem; }
+        .project-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        .project-tech span {
+            font-size: 0.65rem;
+            background: rgba(110,168,255,0.15);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+        }
+        .project-link {
+            display: inline-block;
+            margin-top: 1rem;
+            color: #6ea8ff;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .project-link:hover {
+            color: #fff;
+            transform: translateX(5px);
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(20px);
+            z-index: 10002;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        .modal-content {
+            background: rgba(10,10,20,0.95);
+            border: 1px solid rgba(110,168,255,0.3);
+            border-radius: 32px;
+            max-width: 700px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s;
+        }
+        .modal.active .modal-content { transform: scale(1); }
+        .modal-close {
+            position: sticky;
+            top: 1rem;
+            right: 1rem;
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #888;
+            background: rgba(0,0,0,0.5);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .modal-body {
+            padding: 2rem;
+            padding-top: 1rem;
+        }
+        .modal-screenshot {
+            width: 100%;
+            border-radius: 20px;
+            margin: 1rem 0;
+            background: linear-gradient(145deg, #1a1a2a, #0c0c18);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        .screenshot-placeholder {
+            width: 100%;
+            height: 100%;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 1rem;
+            background: linear-gradient(135deg, #1a1a2a, #0c0c18);
+            color: #6ea8ff;
+            font-size: 3rem;
+        }
+        .screenshot-img {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 16px;
+        }
+        .modal-tech {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+        .modal-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.7rem 1.5rem;
+            background: #6ea8ff;
+            color: #05050a;
+            text-decoration: none;
+            border-radius: 40px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .modal-link:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(110,168,255,0.3);
+        }
+
+        .partnership {
+            background: linear-gradient(135deg, rgba(30,25,55,0.6), rgba(10,8,20,0.8));
+            backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 3rem;
+            text-align: center;
+            border: 1px solid rgba(110,168,255,0.2);
+        }
+
+        .footer {
+            position: relative;
+            z-index: 2;
+            background: #030308;
+            border-top: 1px solid rgba(110,168,255,0.1);
+            padding: 3rem 8% 2rem;
+        }
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+        .footer-section {
+            flex: 1;
+            min-width: 180px;
+        }
+        .footer-section h4 {
+            color: #6ea8ff;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            letter-spacing: 1px;
+        }
+        .footer-section a {
+            display: block;
+            color: #888;
+            text-decoration: none;
+            font-size: 0.8rem;
+            margin: 0.5rem 0;
+            transition: color 0.2s;
+        }
+        .footer-section a:hover { color: #6ea8ff; }
+        .footer-social {
+            display: flex;
+            gap: 1.2rem;
+            margin-top: 1rem;
+        }
+        .footer-social a {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(110,168,255,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            color: #888;
+            text-decoration: none;
+        }
+        .footer-social a:hover {
+            background: #6ea8ff;
+            color: #05050a;
+            transform: translateY(-3px);
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.7rem;
+            color: #555;
+        }
+        .pwa-badge-footer {
+            display: inline-block;
+            background: rgba(110,168,255,0.15);
+            padding: 0.2rem 0.6rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            margin-top: 0.5rem;
+        }
+
+        .about-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 3rem;
+            margin-top: 1rem;
+        }
+        .about-content {
+            flex: 1.5;
+        }
+        .about-text {
+            font-size: 1.1rem;
+            line-height: 1.7;
+            color: #ccc;
+            margin-bottom: 1.5rem;
+        }
+        .about-highlight {
+            color: #6ea8ff;
+            font-weight: 600;
+        }
+        .about-stats {
+            flex: 1;
+            background: rgba(110,168,255,0.05);
+            border-radius: 28px;
+            padding: 2rem;
+            border: 1px solid rgba(110,168,255,0.15);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(110,168,255,0.1);
+        }
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(110,168,255,0.1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: #6ea8ff;
+        }
+        .stat-info {
+            flex: 1;
+        }
+        .stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+        .stat-label {
+            font-size: 0.75rem;
+            color: #888;
+            letter-spacing: 0.5px;
+        }
+        .stat-desc {
+            font-size: 0.8rem;
+            color: #6ea8ff;
+            margin-top: 0.25rem;
+        }
+
+        @media (max-width: 900px) {
+            .hero-line { font-size: 2rem; }
+            .rotating-title { font-size: 2.2rem !important; white-space: normal !important; }
+            .rotating-title-container { min-width: auto; }
+            .hero-line-3 { font-size: 1.2rem; }
+            .hero-sub-message { font-size: 0.8rem; }
+            .navbar { width: 92%; padding: 0.5rem 1.2rem; }
+            .nav-links { display: none; }
+            .hamburger { display: block; }
+            .menu-links a { font-size: 2rem; margin: 1rem 0; }
+            .section-title { font-size: 1.8rem; }
+            section { padding: 4rem 5%; }
+            .cursor, .cursor-follower { display: none; }
+            body { cursor: auto; }
+            .tech-logo { width: 45px; height: 45px; font-size: 1.5rem; }
+            .footer-content { flex-direction: column; gap: 1.5rem; }
+            .menu-social a { width: 50px; height: 50px; font-size: 1.5rem; }
+            .about-container { flex-direction: column; }
+            .about-stats { width: 100%; }
+            .tech-logo-item { width: 60px; height: 60px; }
+            .tech-logo-item i { font-size: 1.6rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="loader" id="loader">
+    <div class="loader-content">
+        <div class="loader-text">BOOTING FULL-STACK ECOSYSTEM</div>
+        <div class="loader-bar"><div class="loader-progress"></div></div>
+    </div>
+</div>
+
+<div class="cursor"></div>
+<div class="cursor-follower"></div>
+
+<nav class="navbar" id="navbar">
+    <div class="logo">
+        <span class="logo-bracket">{</span>
+        <span class="logo-text">jo-3y</span>
+        <span class="logo-dot"></span>
+        <span class="logo-text">dev</span>
+        <span class="logo-bracket">}</span>
+    </div>
+    <div class="nav-links">
+        <a href="#skills">STACK</a>
+        <a href="#projects">WORK</a>
+        <a href="#pwa">PWA APPS</a>
+        <a href="#about">ABOUT</a>
+        <a href="#contact">CONNECT</a>
+    </div>
+    <div class="hamburger" id="hamburger">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+</nav>
+
+<div class="menu-overlay" id="menuOverlay">
+    <div class="menu-links">
+        <a href="#skills" class="menu-link">Stack</a>
+        <a href="#projects" class="menu-link">Projects</a>
+        <a href="#pwa" class="menu-link">PWA Apps</a>
+        <a href="#about" class="menu-link">About</a>
+        <a href="#contact" class="menu-link">Connect</a>
+        <div class="menu-social">
+            <a href="https://github.com/middlepath79" target="_blank"><i class="fab fa-github"></i></a>
+            <a href="https://linkedin.com/in/joeyedeaghe" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+            <a href="https://twitter.com/uniqthots" target="_blank"><i class="fab fa-x-twitter"></i></a>
+            <a href="https://instagram.com/yourusername" target="_blank"><i class="fab fa-instagram"></i></a>
+            <a href="https://dev.to/jo3y" target="_blank"><i class="fab fa-dev"></i></a>
+        </div>
+    </div>
+</div>
+
+<div id="canvas-container"></div>
+
+<section class="hero">
+    <div class="hero-badge">✦ FULL STACK ARCHITECT ✦</div>
+    <div class="hero-message">
+        <div class="hero-line hero-line-1">I don't just code.</div>
+        <div class="hero-line">
+            I am <span class="rotating-title-container"><span id="rotatingTitle" class="rotating-title">jo-3y<dev/></span></span>
+        </div>
+        <div class="hero-line-3">We Create and Develop Ideas</div>
+        <div class="hero-sub-message">full-stack · pwa specialist · systems architect</div>
+    </div>
+    <div class="tech-logos">
+        <div class="tech-logo"><i class="fab fa-react"></i></div>
+        <div class="tech-logo"><i class="fab fa-node-js"></i></div>
+        <div class="tech-logo"><i class="fab fa-python"></i></div>
+        <div class="tech-logo"><i class="fab fa-js"></i></div>
+        <div class="tech-logo"><i class="fab fa-aws"></i></div>
+        <div class="tech-logo"><i class="fas fa-database"></i></div>
+        <div class="tech-logo"><i class="fab fa-docker"></i></div>
+        <div class="tech-logo"><i class="fas fa-mobile-alt"></i></div>
+    </div>
+    <div class="hero-description">
+        5+ years engineering high-performance applications, PWA specialist, and full-stack architect.
+    </div>
+</section>
+
+<section id="skills">
+    <div class="section-title">Tech <span class="accent">arsenal</span></div>
+    <div class="tech-arsenal">
+        <div class="tech-category">
+            <div class="category-header">
+                <i class="fas fa-code"></i>
+                <h3>Frontend</h3>
+            </div>
+            <div class="tech-logo-grid">
+                <div class="tech-logo-item"><i class="fab fa-react"></i><span>React</span></div>
+                <div class="tech-logo-item"><i class="fab fa-vuejs"></i><span>Vue</span></div>
+                <div class="tech-logo-item"><i class="fab fa-js"></i><span>TypeScript</span></div>
+                <div class="tech-logo-item"><i class="fab fa-tailwind"></i><span>Tailwind</span></div>
+                <div class="tech-logo-item"><i class="fas fa-paint-brush"></i><span>GSAP</span></div>
+                <div class="tech-logo-item"><i class="fas fa-cube"></i><span>Three.js</span></div>
+            </div>
+        </div>
+        <div class="tech-category">
+            <div class="category-header">
+                <i class="fas fa-server"></i>
+                <h3>Backend</h3>
+            </div>
+            <div class="tech-logo-grid">
+                <div class="tech-logo-item"><i class="fab fa-node-js"></i><span>Node.js</span></div>
+                <div class="tech-logo-item"><i class="fab fa-python"></i><span>Python</span></div>
+                <div class="tech-logo-item"><i class="fas fa-database"></i><span>GraphQL</span></div>
+                <div class="tech-logo-item"><i class="fas fa-cloud"></i><span>REST API</span></div>
+                <div class="tech-logo-item"><i class="fas fa-exchange-alt"></i><span>WebSockets</span></div>
+                <div class="tech-logo-item"><i class="fab fa-java"></i><span>Express</span></div>
+            </div>
+        </div>
+        <div class="tech-category">
+            <div class="category-header">
+                <i class="fas fa-mobile-alt"></i>
+                <h3>PWA & Mobile</h3>
+            </div>
+            <div class="tech-logo-grid">
+                <div class="tech-logo-item"><i class="fas fa-download"></i><span>Workbox</span></div>
+                <div class="tech-logo-item"><i class="fas fa-database"></i><span>IndexedDB</span></div>
+                <div class="tech-logo-item"><i class="fas fa-bell"></i><span>Web Push</span></div>
+                <div class="tech-logo-item"><i class="fas fa-sync-alt"></i><span>Service Workers</span></div>
+                <div class="tech-logo-item"><i class="fas fa-charging-station"></i><span>Capacitor</span></div>
+                <div class="tech-logo-item"><i class="fab fa-react"></i><span>React Native</span></div>
+            </div>
+        </div>
+        <div class="tech-category">
+            <div class="category-header">
+                <i class="fas fa-cloud"></i>
+                <h3>DevOps & Database</h3>
+            </div>
+            <div class="tech-logo-grid">
+                <div class="tech-logo-item"><i class="fas fa-database"></i><span>PostgreSQL</span></div>
+                <div class="tech-logo-item"><i class="fas fa-leaf"></i><span>MongoDB</span></div>
+                <div class="tech-logo-item"><i class="fas fa-bolt"></i><span>Redis</span></div>
+                <div class="tech-logo-item"><i class="fab fa-docker"></i><span>Docker</span></div>
+                <div class="tech-logo-item"><i class="fab fa-aws"></i><span>AWS</span></div>
+                <div class="tech-logo-item"><i class="fas fa-chart-line"></i><span>Vercel</span></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="projects">
+    <div class="section-title">Featured <span class="accent">engineering</span></div>
+    <div class="projects-grid" id="projects-grid"></div>
+</section>
+
+<section id="pwa">
+    <div class="section-title">PWA <span class="accent">showcase</span></div>
+    <div class="projects-grid" id="pwa-grid"></div>
+</section>
+
+<section id="about">
+    <div class="section-title">The <span class="accent">full-stack</span> mindset</div>
+    <div class="about-container">
+        <div class="about-content">
+            <div class="about-text">
+                I'm <span class="about-highlight">jo-3y</span> — a full-stack architect who specializes in <span class="about-highlight">Progressive Web Apps</span> and scalable systems. I believe great software works everywhere, even offline. From service workers to database sharding, I bridge the full spectrum of modern development.
+            </div>
+            <div class="about-text">
+                <span class="about-highlight">PWA Expertise:</span> Offline-first architectures, background sync, push notifications, and installable web apps that feel native. Every line of code I write is intentional, scalable, and built to last.
+            </div>
+        </div>
+        <div class="about-stats">
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-rocket"></i></div>
+                <div class="stat-info">
+                    <div class="stat-number">12+</div>
+                    <div class="stat-label">PWAs IN PRODUCTION</div>
+                    <div class="stat-desc">Deployed & actively maintained</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-info">
+                    <div class="stat-number">50k+</div>
+                    <div class="stat-label">MONTHLY ACTIVE USERS</div>
+                    <div class="stat-desc">Across all applications</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
+                    <div class="stat-number">100%</div>
+                    <div class="stat-label">LIGHTHOUSE PWA SCORE</div>
+                    <div class="stat-desc">Performance, Accessibility, Best Practices</div>
+                </div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-icon"><i class="fab fa-aws"></i></div>
+                <div class="stat-info">
+                    <div class="stat-number">AWS</div>
+                    <div class="stat-label">CERTIFIED SOLUTIONS ARCHITECT</div>
+                    <div class="stat-desc">Professional certification</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div style="padding: 0 8% 5rem 8%;" id="contact">
+    <div class="partnership">
+        <h2 style="font-size: 2rem;">Let's build<br><span style="color:#6ea8ff">offline-first experiences</span></h2>
+        <p style="margin: 1rem auto; max-width: 450px; color: #aaa">Need a full-stack PWA specialist? Let's create apps that work anywhere, anytime.</p>
+        <a href="#" id="contactBtn" style="display: inline-block; margin-top: 1.5rem; padding: 0.8rem 2rem; background: #6ea8ff; color: #05050a; border-radius: 40px; text-decoration: none; font-weight: 600;">joeyedeaghe@gmail.com →</a>
+    </div>
+</div>
+
+<footer class="footer">
+    <div class="footer-content">
+        <div class="footer-section">
+            <h4>jo-3y.dev</h4>
+            <p style="font-size: 0.8rem; color: #666;">Full Stack Architect<br>PWA Specialist</p>
+            <div class="pwa-badge-footer">✦ 5+ Production PWAs ✦</div>
+        </div>
+        <div class="footer-section">
+            <h4>Navigate</h4>
+            <a href="#skills">Tech Stack</a>
+            <a href="#projects">Projects</a>
+            <a href="#pwa">PWA Apps</a>
+            <a href="#about">About</a>
+        </div>
+        <div class="footer-section">
+            <h4>Live PWAs</h4>
+            <a href="https://stockvaults.netlify.app" target="_blank">StockVauts</a>
+            <a href="https://mindbits.netlify.app" target="_blank">MindBits</a>
+            <a href="https://qminds.netlify.app" target="_blank">QMinds</a>
+            <a href="https://quanflashcards.netlify.app" target="_blank">QuanFlashcards</a>
+            <a href="https://palmoil-app.netlify.app" target="_blank">PalmOil App</a>
+        </div>
+        <div class="footer-section">
+            <h4>Connect</h4>
+            <a href="https://github.com/middlepath79" target="_blank">GitHub</a>
+            <a href="https://linkedin.com/in/joeyedeaghe" target="_blank">LinkedIn</a>
+            <a href="https://twitter.com/uniqthots" target="_blank">X / Twitter</a>
+            <a href="mailto:joeyedeaghe@gmail.com">Email</a>
+        </div>
+    </div>
+    <div class="footer-social">
+        <a href="https://github.com/middlepath79" target="_blank"><i class="fab fa-github"></i></a>
+        <a href="https://linkedin.com/in/joeyedeaghe" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+        <a href="https://twitter.com/uniqthots" target="_blank"><i class="fab fa-x-twitter"></i></a>
+        <a href="https://instagram.com/yourusername" target="_blank"><i class="fab fa-instagram"></i></a>
+        <a href="https://dev.to/jo-3y" target="_blank"><i class="fab fa-dev"></i></a>
+    </div>
+    <div class="footer-bottom">
+        <span>© 2026 jo-3y — Full Stack Architect.</span>
+    </div>
+</footer>
+
+<div class="modal" id="projectModal">
+    <div class="modal-content">
+        <div class="modal-close" id="modalClose">&times;</div>
+        <div class="modal-body">
+            <h2 id="modalTitle" style="margin-bottom: 0.5rem;"></h2>
+            <div id="modalScreenshot" class="modal-screenshot"></div>
+            <p id="modalDesc" style="color: #aaa; margin-bottom: 1rem;"></p>
+            <div id="modalTech" class="modal-tech"></div>
+            <div id="modalFeatures" style="margin-top: 1rem;"></div>
+            <a href="#" id="modalLink" class="modal-link" target="_blank">Launch App →</a>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+    import * as THREE from 'three';
+    
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+    scene.background = null;
+    scene.fog = new THREE.FogExp2(0x05050a, 0.008);
+    const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.set(0, 0, 12);
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    container.appendChild(renderer.domElement);
+    
+    const particlesGeometry = new THREE.BufferGeometry();
+    const particlesCount = 1800;
+    const posArray = new Float32Array(particlesCount * 3);
+    for(let i = 0; i < particlesCount * 3; i += 3) {
+        posArray[i] = (Math.random() - 0.5) * 40;
+        posArray[i+1] = (Math.random() - 0.5) * 25;
+        posArray[i+2] = (Math.random() - 0.5) * 30 - 15;
+    }
+    particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+    const particlesMaterial = new THREE.PointsMaterial({ color: 0x6ea8ff, size: 0.08, transparent: true, opacity: 0.5, blending: THREE.AdditiveBlending });
+    const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+    scene.add(particlesMesh);
+    
+    const ringGeometry = new THREE.TorusGeometry(2.2, 0.03, 64, 300);
+    const ringMaterial = new THREE.MeshStandardMaterial({ color: 0x6ea8ff, emissive: 0x1a3a6a, emissiveIntensity: 0.6 });
+    const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+    scene.add(ring);
+    const ring2Geometry = new THREE.TorusGeometry(3, 0.02, 64, 300);
+    const ring2Material = new THREE.MeshStandardMaterial({ color: 0xa06eff, emissive: 0x3a2a6a, emissiveIntensity: 0.4 });
+    const ring2 = new THREE.Mesh(ring2Geometry, ring2Material);
+    scene.add(ring2);
+    
+    const ambientLight = new THREE.AmbientLight(0x111122);
+    scene.add(ambientLight);
+    const pointLight = new THREE.PointLight(0x6ea8ff, 1);
+    pointLight.position.set(2, 3, 4);
+    scene.add(pointLight);
+    
+    let time = 0;
+    function animate() {
+        requestAnimationFrame(animate);
+        time += 0.005;
+        ring.rotation.x = Math.sin(time * 0.5) * 0.3;
+        ring.rotation.y = time * 0.3;
+        ring2.rotation.x = Math.cos(time * 0.4) * 0.2;
+        ring2.rotation.z = time * 0.2;
+        particlesMesh.rotation.y = time * 0.05;
+        camera.position.z = 12 + Math.sin(time * 0.2) * 0.2;
+        renderer.render(scene, camera);
+    }
+    animate();
+    window.addEventListener('resize', () => {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
+    gsap.to(".logo", {
+        duration: 1.5,
+        repeat: -1,
+        yoyo: true,
+        ease: "power1.inOut",
+        scale: 1.02
+    });
+    
+    const rotatingTitles = [
+        "jo-3y<dev/>",
+        "the architect",
+        "a chess player",
+        "a Mathematician"
+        
+    ];
+    let titleIndex = 0;
+    const rotatingElement = document.getElementById('rotatingTitle');
+    
+    if (rotatingElement) {
+        setInterval(() => {
+            gsap.to(rotatingElement, {
+                opacity: 0,
+                duration: 0.25,
+                y: -10,
+                onComplete: () => {
+                    titleIndex = (titleIndex + 1) % rotatingTitles.length;
+                    rotatingElement.textContent = rotatingTitles[titleIndex];
+                    gsap.to(rotatingElement, {
+                        opacity: 1,
+                        duration: 0.35,
+                        y: 0,
+                        ease: "back.out(0.6)"
+                    });
+                }
+            });
+        }, 2800);
+    }
+    
+    const projects = [
+        { title: "ScaleFlow AI", desc: "Enterprise workflow automation platform with AI-powered analytics. Serves 50k+ daily users.", tech: ["React", "Node.js", "Python", "TensorFlow", "PostgreSQL"], features: ["Real-time dashboards", "ML prediction engine", "RBAC system"], link: "#", pwa: false, screenshot: "https://placehold.co/600x350/1a1a2a/6ea8ff?text=ScaleFlow+AI" },
+        { title: "Nexus GraphQL Gateway", desc: "Unified API gateway handling 10M+ requests/month across microservices.", tech: ["GraphQL", "Apollo", "Node.js", "Docker", "Kubernetes"], features: ["Federation", "Rate limiting", "Analytics tracing"], link: "#", pwa: false, screenshot: "https://placehold.co/600x350/1a1a2a/6ea8ff?text=Nexus+Gateway" },
+        { title: "Motion Canvas Studio", desc: "Interactive 3D web builder for creative agencies. Used by 200+ studios.", tech: ["Three.js", "React", "WebGL", "GSAP", "AWS"], features: ["Real-time preview", "Export to video", "Collaborative editing"], link: "#", pwa: false, screenshot: "https://placehold.co/600x350/1a1a2a/6ea8ff?text=Motion+Canvas" }
+    ];
+    
+    const pwaApps = [
+        { title: "StockVaults", desc: "Stock market analysis and portfolio tracking PWA with real-time data, offline charts, and watchlist sync.", tech: ["React", "Chart.js", "IndexedDB", "Service Workers", "Alpha Vantage API"], features: ["Real-time stock data", "Offline chart caching", "Portfolio tracking", "Push notifications"], link: "https://stockvaults.netlify.app", pwa: true, icon: "chart-line", screenshot: "https://stockvaults.netlify.app/placeholder.png" },
+        { title: "MindBits", desc: "Cognitive training PWA with memory games, puzzles, and progress tracking — works completely offline.", tech: ["Vue", "IndexedDB", "Workbox", "Web Audio API", "LocalStorage"], features: ["15+ brain games", "Offline progress sync", "Daily challenges", "Performance analytics"], link: "https://mindbits.netlify.app", pwa: true, icon: "brain", screenshot: "https://mindbits.netlify.app/placeholder.png" },
+        { title: "QMinds", desc: "Quiz and learning platform PWA with spaced repetition, offline mode, and gamification.", tech: ["React", "PouchDB", "Service Workers", "Web Push", "Tailwind"], features: ["Spaced repetition algorithm", "Offline quizzes", "Leaderboards", "Progress sync"], link: "https://qminds.netlify.app", pwa: true, icon: "graduation-cap", screenshot: "https://qminds.netlify.app/placeholder.png" },
+        { title: "QuanFlashcards", desc: "Flashcard study app PWA with customizable decks, offline access, and sync across devices.", tech: ["Next.js", "IndexedDB", "Workbox", "LocalForage", "Firebase Sync"], features: ["Create custom decks", "Offline study mode", "Spaced repetition", "Cross-device sync"], link: "https://quanflashcards.netlify.app", pwa: true, icon: "cards", screenshot: "https://quanflashcards.netlify.app/placeholder.png" },
+        { title: "PalmOil App", desc: "Agricultural supply chain management PWA for palm oil producers with offline data collection.", tech: ["React Native Web", "PWA", "MongoDB", "Node.js", "Maps API"], features: ["Offline data entry", "GPS tracking", "Inventory management", "Analytics dashboard"], link: "https://palmoil-app.netlify.app", pwa: true, icon: "seedling", screenshot: "https://palmoil-app.netlify.app/placeholder.png" }
+    ];
+    
+    function renderProjects(containerId, items, isPWA = false) {
+        const container = document.getElementById(containerId);
+        if (!container) return;
+        items.forEach((item, idx) => {
+            const card = document.createElement('div');
+            card.className = 'project-card';
+            const icon = item.icon || (idx === 0 ? (isPWA ? 'mobile-alt' : 'brain') : idx === 1 ? (isPWA ? 'map-marked-alt' : 'network-wired') : (isPWA ? 'tasks' : 'cube'));
+            card.innerHTML = `
+                <div class="project-img">
+                    <i class="fas fa-${icon}"></i>
+                    ${item.pwa ? '<div class="pwa-badge"><i class="fas fa-download"></i> PWA</div>' : ''}
+                    <div class="project-overlay"><i class="fas fa-external-link-alt" style="font-size:1.5rem"></i></div>
+                </div>
+                <div class="project-info">
+                    <h3>${item.title}</h3>
+                    <p style="font-size:0.85rem; color:#aaa">${item.desc.substring(0, 100)}${item.desc.length > 100 ? '...' : ''}</p>
+                    <div class="project-tech">${item.tech.slice(0,4).map(t => `<span>${t}</span>`).join('')}</div>
+                    <a href="${item.link}" target="_blank" class="project-link" onclick="event.stopPropagation()">Launch App →</a>
+                </div>
+            `;
+            card.addEventListener('click', () => openModal(item));
+            container.appendChild(card);
+        });
+    }
+    
+    function openModal(proj) {
+        document.getElementById('modalTitle').innerText = proj.title;
+        document.getElementById('modalDesc').innerText = proj.desc;
+        document.getElementById('modalTech').innerHTML = proj.tech.map(t => `<span class="skill-badge">${t}</span>`).join('');
+        document.getElementById('modalFeatures').innerHTML = `<strong>Key features:</strong><ul style="margin-top:0.5rem; margin-left:1rem">${proj.features.map(f => `<li style="margin:0.3rem 0">✓ ${f}</li>`).join('')}</ul>`;
+        
+        const screenshotDiv = document.getElementById('modalScreenshot');
+        if (proj.screenshot && proj.screenshot !== '#' && !proj.screenshot.includes('placeholder')) {
+            screenshotDiv.innerHTML = `<img src="${proj.screenshot}" alt="${proj.title} screenshot" class="screenshot-img" onerror="this.parentElement.innerHTML='<div class=\'screenshot-placeholder\'><i class=\'fas fa-mobile-alt\'></i><span>Launch to see the live PWA</span></div>'">`;
+        } else {
+            screenshotDiv.innerHTML = `<div class="screenshot-placeholder"><i class="fas fa-mobile-alt"></i><span>App preview</span><small style="font-size:0.7rem">Launch to see the live PWA</small></div>`;
+        }
+        
+        const modalLink = document.getElementById('modalLink');
+        modalLink.href = proj.link;
+        modalLink.textContent = proj.pwa ? "Launch PWA →" : "View Project →";
+        document.getElementById('projectModal').classList.add('active');
+    }
+    
+    renderProjects('projects-grid', projects, false);
+    renderProjects('pwa-grid', pwaApps, true);
+    
+    document.getElementById('modalClose').addEventListener('click', () => document.getElementById('projectModal').classList.remove('active'));
+    document.getElementById('projectModal').addEventListener('click', (e) => { if(e.target === document.getElementById('projectModal')) document.getElementById('projectModal').classList.remove('active'); });
+    
+    const hamburger = document.getElementById('hamburger');
+    const menuOverlay = document.getElementById('menuOverlay');
+    hamburger.addEventListener('click', () => {
+        hamburger.classList.toggle('active');
+        menuOverlay.classList.toggle('active');
+        document.body.style.overflow = menuOverlay.classList.contains('active') ? 'hidden' : '';
+    });
+    document.querySelectorAll('.menu-link').forEach(link => {
+        link.addEventListener('click', () => {
+            hamburger.classList.remove('active');
+            menuOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+    });
+    
+    gsap.registerPlugin(ScrollTrigger);
+    window.addEventListener("load", () => setTimeout(() => gsap.to(".loader", { opacity: 0, visibility: "hidden", duration: 0.8 }), 1200));
+    
+    const cursor = document.querySelector(".cursor");
+    const follower = document.querySelector(".cursor-follower");
+    if(cursor && follower) {
+        document.addEventListener("mousemove", (e) => {
+            gsap.to(cursor, { x: e.clientX - 4, y: e.clientY - 4, duration: 0.05 });
+            gsap.to(follower, { x: e.clientX - 24, y: e.clientY - 24, duration: 0.2 });
+        });
+        document.querySelectorAll("a, .project-card, .tech-logo-item, .tech-logo, .logo, .footer-social a, .menu-social a").forEach(el => {
+            el.addEventListener("mouseenter", () => gsap.to(follower, { scale: 2.2, duration: 0.3, borderColor: "#6ea8ff" }));
+            el.addEventListener("mouseleave", () => gsap.to(follower, { scale: 1, duration: 0.3, borderColor: "rgba(110,168,255,0.5)" }));
+        });
+    }
+    
+    gsap.utils.toArray("section, .partnership, .footer").forEach(section => {
+        gsap.from(section, {
+            scrollTrigger: { trigger: section, start: "top 85%", toggleActions: "play none none reverse" },
+            y: 40, opacity: 0, duration: 0.7, ease: "power3.out"
+        });
+    });
+    
+    ScrollTrigger.create({
+        start: "top top", end: 100,
+        onUpdate: (self) => {
+            const nav = document.getElementById("navbar");
+            if(self.progress > 0.1) nav.style.background = "rgba(5,5,10,0.9)";
+            else nav.style.background = "rgba(8,8,15,0.75)";
+        }
+    });
+    
+    document.getElementById("contactBtn")?.addEventListener("click", (e) => {
+        e.preventDefault();
+        alert("📧 Let's create something amazing together!");
+    });
+</script>
+</body>
+</html>
